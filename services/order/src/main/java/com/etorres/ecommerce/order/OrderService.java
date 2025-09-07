@@ -2,6 +2,8 @@ package com.etorres.ecommerce.order;
 
 import com.etorres.ecommerce.customer.CustomerClient;
 import com.etorres.ecommerce.exceptions.BusinessException;
+import com.etorres.ecommerce.kafka.OrderConfirmation;
+import com.etorres.ecommerce.kafka.OrderProducer;
 import com.etorres.ecommerce.orderline.OrderLineService;
 import com.etorres.ecommerce.product.ProductClient;
 import com.etorres.ecommerce.product.PurchaseRequest;
@@ -18,12 +20,13 @@ public class OrderService {
     private final ProductClient productClient;
     private final OrderMapper mapper;
     private final OrderLineService orderLineService;
+    private final OrderProducer orderProducer;
 
     public Integer createdOrder(@Valid OrderRequest request) {
         var customer = this.client.findCustomerById(request.customerId())
                 .orElseThrow(() -> new BusinessException("Cannot create order:: No customer exists with the ID: " + request.customerId()));
 
-        this.productClient.purchaseProducts(request.products());
+        var purchasedProducts = this.productClient.purchaseProducts(request.products());
 
         var order = this.repository.save(mapper.toOrder(request));
 
@@ -31,9 +34,18 @@ public class OrderService {
             orderLineService.saveOrderLine(new OrderLineRequest(null, order.getId(), purchaseRequest.productId(), purchaseRequest.quantity()));
         }
 
-        // Start payment process
+        // TODO: Start payment process
 
-        // Send order confirmation -> notification-ms (kafka)
-        return null;
+        orderProducer.sendOrderConfirmation(
+                new OrderConfirmation(
+                        request.reference(),
+                        request.amount(),
+                        request.paymentMethod(),
+                        customer,
+                        purchasedProducts
+                )
+        );
+
+        return order.getId();
     }
 }
