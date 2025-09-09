@@ -6,6 +6,8 @@ import com.etorres.ecommerce.kafka.OrderConfirmation;
 import com.etorres.ecommerce.kafka.OrderProducer;
 import com.etorres.ecommerce.orderline.OrderLineRequest;
 import com.etorres.ecommerce.orderline.OrderLineService;
+import com.etorres.ecommerce.payment.PaymentClient;
+import com.etorres.ecommerce.payment.PaymentRequest;
 import com.etorres.ecommerce.product.ProductClient;
 import com.etorres.ecommerce.product.PurchaseRequest;
 import jakarta.persistence.EntityNotFoundException;
@@ -25,6 +27,7 @@ public class OrderService {
     private final OrderMapper mapper;
     private final OrderLineService orderLineService;
     private final OrderProducer orderProducer;
+    private final PaymentClient paymentClient;
 
     public Integer createdOrder(@Valid OrderRequest request) {
         var customer = this.client.findCustomerById(request.customerId())
@@ -38,7 +41,15 @@ public class OrderService {
             orderLineService.saveOrderLine(new OrderLineRequest(null, order.getId(), purchaseRequest.productId(), purchaseRequest.quantity()));
         }
 
-        // TODO: Start payment process
+        var paymentRequest = new PaymentRequest(
+                request.amount(),
+                request.paymentMethod(),
+                order.getId(),
+                order.getReference(),
+                customer
+        );
+
+        paymentClient.requestOrderPayment(paymentRequest);
 
         orderProducer.sendOrderConfirmation(
                 new OrderConfirmation(
