@@ -1,4 +1,4 @@
-package com.etorres.ecommerce.order;
+package com.etorres.ecommerce.orderline;
 
 import jakarta.validation.constraints.Positive;
 

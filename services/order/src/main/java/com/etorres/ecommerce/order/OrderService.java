@@ -4,12 +4,16 @@ import com.etorres.ecommerce.customer.CustomerClient;
 import com.etorres.ecommerce.exceptions.BusinessException;
 import com.etorres.ecommerce.kafka.OrderConfirmation;
 import com.etorres.ecommerce.kafka.OrderProducer;
+import com.etorres.ecommerce.orderline.OrderLineRequest;
 import com.etorres.ecommerce.orderline.OrderLineService;
 import com.etorres.ecommerce.product.ProductClient;
 import com.etorres.ecommerce.product.PurchaseRequest;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -47,5 +51,15 @@ public class OrderService {
         );
 
         return order.getId();
+    }
+
+    public List<OrderResponse> findAll() {
+        return repository.findAll().stream().map(mapper::toOrderResponse).toList();
+    }
+
+    public OrderResponse findById(Integer orderId) {
+        return repository.findById(orderId)
+                .map(mapper::toOrderResponse)
+                .orElseThrow(() -> new EntityNotFoundException("No order found with the ID: " + orderId));
     }
 }
