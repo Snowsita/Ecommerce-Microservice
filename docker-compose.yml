@@ -64,7 +64,7 @@ services:
       - microservices-net
 
   kafka:
-    image: confluentinc/cp-kafka:latest
+    image: confluentinc/cp-kafka:7.2.1
     container_name: ms-kafka
     ports:
       - "9092:9092"
