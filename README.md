@@ -8,6 +8,7 @@ The application is composed of the following microservices:
 
 *   **Config Server:** A central configuration server that provides configuration to all other services. It uses Spring Cloud Config Server.
 *   **Discovery Server:** A service registry that allows services to find each other. It uses Spring Cloud Netflix Eureka.
+*   **API Gateway:** An API gateway that provides a single entry point for all clients. It uses Spring Cloud Gateway.
 *   **Customer Service:** Manages customer data. It uses MongoDB as its data store.
 *   **Product Service:** Manages product data. It uses PostgreSQL as its data store and Flyway for database migrations.
 *   **Order Service:** Manages customer orders. It uses PostgreSQL as its data store and communicates with the customer and product services via REST APIs (using OpenFeign) to retrieve customer and product information. It also sends order confirmation events to a Kafka topic.
@@ -22,6 +23,7 @@ All services are configured to register with the Eureka discovery server and ret
 *   **Spring Cloud:** For building the microservices-based application, including:
     *   **Spring Cloud Config:** For centralized configuration.
     *   **Spring Cloud Netflix Eureka:** For service discovery.
+    *   **Spring Cloud Gateway:** For building the API gateway.
     *   **Spring Cloud OpenFeign:** For declarative REST API communication.
 *   **Spring Data JPA:** For accessing data in relational databases.
 *   **Spring Data MongoDB:** For accessing data in MongoDB.
@@ -32,6 +34,9 @@ All services are configured to register with the Eureka discovery server and ret
 *   **Docker:** For containerizing the application.
 *   **Maven:** For building the project.
 *   **Lombok:** For reducing boilerplate code.
+*   **Keycloak:** For identity and access management.
+*   **Zipkin:** For distributed tracing.
+*   **Maildev:** For development email server.
 
 ## Building and Running
 
@@ -53,7 +58,7 @@ To run the project, you can use the provided `docker-compose.yml` file. To do so
 docker-compose up
 ```
 
-This will start all of the services, as well as the required infrastructure, such as PostgreSQL, MongoDB, and Kafka.
+This will start all of the services, as well as the required infrastructure, such as PostgreSQL, MongoDB, Kafka, Keycloak, Zipkin, and Maildev.
 
 ## Services
 
@@ -64,6 +69,10 @@ The Config Server is a central configuration server that provides configuration 
 ### Discovery Server
 
 The Discovery Server is a service registry that allows services to find each other. It is a Spring Cloud Netflix Eureka Server. All other services are configured to register with the Discovery Server on startup.
+
+### API Gateway
+
+The API Gateway provides a single entry point for all clients. It is a Spring Cloud Gateway that is configured to route requests to the appropriate microservice. It also provides security by integrating with Keycloak.
 
 ### Customer Service
 
@@ -84,3 +93,15 @@ The Payment Service manages payments. It provides a REST API for creating paymen
 ### Notification Service
 
 The Notification Service consumes order and payment confirmation events from Kafka topics and sends email notifications to customers. It uses Thymeleaf to generate the email content.
+
+### Security
+
+The application is secured using Keycloak. Keycloak is an open-source identity and access management solution. It provides user authentication and authorization for the microservices.
+
+### Distributed Tracing
+
+The application uses Zipkin for distributed tracing. Zipkin is a distributed tracing system that helps to troubleshoot latency issues in microservices.
+
+### Mail Server
+
+The application uses Maildev as a development mail server. Maildev is a simple SMTP server that allows you to view and test emails during development.
