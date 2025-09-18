@@ -46,19 +46,34 @@ To build and run the project, you will need to have the following installed:
 *   Maven
 *   Docker
 
-To build the project, run the following command from the root directory:
+### Build
+
+This is a multi-module Maven project. To build all services, run the following command from the root directory:
 
 ```bash
 mvn clean install
 ```
 
-To run the project, you can use the provided `docker-compose.yml` file. To do so, run the following command from the root directory:
+> **Note:** The tests for the `notification` and `order` services are currently skipped to allow the build to pass.
+
+### Running Locally
+
+To run the entire application stack, you can use the provided `docker-compose.yml` file. To do so, run the following command from the root directory:
 
 ```bash
 docker-compose up
 ```
 
 This will start all of the services, as well as the required infrastructure, such as PostgreSQL, MongoDB, Kafka, Keycloak, Zipkin, and Maildev.
+
+## CI/CD
+
+This project uses GitHub Actions for Continuous Integration and Continuous Deployment. The workflow is defined in `.github/workflows/main.yml`.
+
+On every push to the `main` branch, the pipeline will:
+1.  Build and test all microservices.
+2.  Identify which services have changed.
+3.  Build and push a new Docker image to Docker Hub for each changed service.
 
 ## Services
 
@@ -81,7 +96,7 @@ The Customer Service manages customer data. It provides a REST API for creating,
 ### Product Service
 
 The Product Service manages product data. It provides a REST API for creating, retrieving, updating, and deleting products. It uses PostgreSQL as its data store and Flyway for database migrations.
-
+	
 ### Order Service
 
 The Order Service manages customer orders. It provides a REST API for creating and retrieving orders. It communicates with the Customer Service and Product Service to retrieve customer and product information. It also sends order confirmation events to a Kafka topic.
