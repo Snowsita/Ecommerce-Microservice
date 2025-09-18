@@ -1,0 +1,13 @@
+name: Build & Deploy Microservices
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-deploy:
+    name: Build and Deploy Microservices
+    runs-on: ubuntu-latest
+    steps:
+      - name:
